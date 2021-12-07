@@ -11,7 +11,7 @@ namespace ProjetEyeTracking
 {
     public class Program
     {
-
+        // Fixation variables
         private static FixationDataStream _fixationDataStream;
         private static Host _host;
         private static DateTime _fixationBeginTime = default(DateTime);
@@ -33,7 +33,7 @@ namespace ProjetEyeTracking
 
             InitializeHost();
 
-            CreateAndVisualizeSensitiveFilteredFixationsStream();
+            CreateFixationsStream();
 
             int bytesRec = sender.Receive(bytes);
             Console.WriteLine("{0}",
@@ -41,16 +41,13 @@ namespace ProjetEyeTracking
 
             if (Encoding.ASCII.GetString(bytes, 0, bytesRec) == "suivant")
             {
-                ToggleFixationDataStream();
+                ToggleFixationStream();
             }
 
             Console.ReadKey(true);
 
-
-
-            //DisableConnectionWithTobiiEngine();
+            DisableConnectionWithTobiiEngine();
         }
-
 
         private static void InitializeHost()
         {
@@ -65,14 +62,14 @@ namespace ProjetEyeTracking
             _host.DisableConnection();
         }
 
-        private static void ToggleFixationDataStream()
+        private static void ToggleFixationStream()
         {
             // Toggling the FixationDataStream on or off
             if (_fixationDataStream != null)
                 _fixationDataStream.IsEnabled = !_fixationDataStream.IsEnabled;
         }
 
-        private static void CreateAndVisualizeSensitiveFilteredFixationsStream()
+        private static void CreateFixationsStream()
         {
             _fixationDataStream = _host.Streams.CreateFixationDataStream();
             _fixationDataStream
@@ -85,27 +82,19 @@ namespace ProjetEyeTracking
                 .Data((x, y, _) =>
                 {
                     //Console.WriteLine("During fixation, currently at: X: {0}, Y: {1}", x, y);
-
-
-
-
                 })
                 .End((x, y, _) =>
                 {
                     Console.WriteLine("Fixation ended at X: {0}, Y: {1}", x, y);
                     if (_fixationBeginTime != default(DateTime))
                     {
-                        Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine("Fixation duration: {0}", DateTime.Now - _fixationBeginTime);
-                        Console.ForegroundColor = Console.ForegroundColor;
                     }
                 });
         }
 
         public static void StartClient()
         {
-
-            // Connect the socket to the remote endpoint. Catch any errors.
             try
             {
                 // Connect to Remote EndPoint
@@ -114,13 +103,11 @@ namespace ProjetEyeTracking
                 Console.WriteLine("Socket connected to {0}",
                     sender.RemoteEndPoint.ToString());
 
-                // Encode the data string into a byte array.
+                // Send encoded message through the socket
                 byte[] msg = Encoding.ASCII.GetBytes("This is a test<EOF>");
-
-                // Send the data through the socket.
                 int bytesSent = sender.Send(msg);
 
-                // Receive the response from the remote device.
+                // Receive the response from the server
                 int bytesRec = sender.Receive(bytes);
                 Console.WriteLine("Echoed test = {0}",
                     Encoding.ASCII.GetString(bytes, 0, bytesRec));

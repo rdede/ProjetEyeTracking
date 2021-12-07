@@ -68,18 +68,16 @@
     <Reference Include="Tobii.EyeX.Framework">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Tobii\Tobii EyeX Config\Tobii.EyeX.Framework.dll</HintPath>
     </Reference>
-    <Reference Include="Tobii.Interaction.Model">
-      <HintPath>..\..\CoreSDK\samples\packages\Tobii.Interaction.0.7.1\lib\net45\Tobii.Interaction.Model.dll</HintPath>
+    <Reference Include="Tobii.Interaction.Model, Version=0.7.1.36, Culture=neutral, PublicKeyToken=70326046dcdce6cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\Tobii.Interaction.Model.dll</HintPath>
     </Reference>
-    <Reference Include="Tobii.Interaction.Net">
-      <HintPath>..\..\CoreSDK\samples\packages\Tobii.Interaction.0.7.1\lib\net45\Tobii.Interaction.Net.dll</HintPath>
-    </Reference>
-    <Reference Include="Tobii.Research">
-      <HintPath>..\..\..\M2\Recherche\SDK\x64\Tobii.Research.dll</HintPath>
+    <Reference Include="Tobii.Interaction.Net, Version=0.7.1.36, Culture=neutral, PublicKeyToken=70326046dcdce6cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\Tobii.Interaction.Net.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HttpServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -88,12 +86,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Tobii.EyeX.Client.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="tobii_firmware_upgrade.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="tobii_pro.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
