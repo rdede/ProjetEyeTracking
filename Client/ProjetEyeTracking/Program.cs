@@ -1,74 +1,143 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Tobii.Interaction;
 using Tobii.Interaction.Framework;
-using Tobii.Research;
-using System.Collections.Generic;
-using System.Linq;
+
+using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
-using System.IO;
 using System.Net;
 
 namespace ProjetEyeTracking
 {
-    class Program
+    public class Program
     {
-        public static string url = "http://localhost:8080/";
+
+        private static FixationDataStream _fixationDataStream;
+        private static Host _host;
+        private static DateTime _fixationBeginTime = default(DateTime);
+
+        // Socket variables 
+        private static IPHostEntry host = Dns.GetHostEntry("localhost");
+        private static IPAddress ipAddress = host.AddressList[0];
+        private static IPEndPoint remoteEP = new IPEndPoint(ipAddress, 11000);
+
+        private static byte[] bytes = new byte[1024];
+
+        // Create a TCP/IP  socket.
+        private static Socket sender = new Socket(ipAddress.AddressFamily,
+            SocketType.Stream, ProtocolType.Tcp);
 
         public static void Main(string[] args)
         {
-            /*EyeTrackerCollection eyeTrackers = EyeTrackingOperations.FindAllEyeTrackers();
-            Console.WriteLine(eyeTrackers.Count);
-            */
+            StartClient();
 
+            InitializeHost();
 
-            // Everything starts with initializing Host, which manages the connection to the 
-            // Tobii Engine and provides all the Tobii Core SDK functionality.
-            // NOTE: Make sure that Tobii.EyeX.exe is running
-            var host = new Host();
+            CreateAndVisualizeSensitiveFilteredFixationsStream();
 
-            // Initialize Fixation data stream.
-            var fixationDataStream = host.Streams.CreateFixationDataStream();
+            int bytesRec = sender.Receive(bytes);
+            Console.WriteLine("{0}",
+                Encoding.ASCII.GetString(bytes, 0, bytesRec));
 
-            // Because timestamp of fixation events is relative to the previous ones
-            // only, we will store them in this variable.
-            var fixationBeginTime = 0d;
-
-            fixationDataStream.Next += (o, fixation) =>
+            if (Encoding.ASCII.GetString(bytes, 0, bytesRec) == "suivant")
             {
-                // On the Next event, data comes as FixationData objects, wrapped in a StreamData<T> object.
-                var fixationPointX = fixation.Data.X;
-                var fixationPointY = fixation.Data.Y;
+                ToggleFixationDataStream();
+            }
 
-                switch (fixation.Data.EventType)
+            Console.ReadKey(true);
+
+
+
+            //DisableConnectionWithTobiiEngine();
+        }
+
+
+        private static void InitializeHost()
+        {
+            // Initialyzing the Tobii host
+            // Make sure that Tobii.EyeX.exe is running
+            _host = new Host();
+        }
+
+        private static void DisableConnectionWithTobiiEngine()
+        {
+            // Disabling connection with TobiiEngine before exit the application
+            _host.DisableConnection();
+        }
+
+        private static void ToggleFixationDataStream()
+        {
+            // Toggling the FixationDataStream on or off
+            if (_fixationDataStream != null)
+                _fixationDataStream.IsEnabled = !_fixationDataStream.IsEnabled;
+        }
+
+        private static void CreateAndVisualizeSensitiveFilteredFixationsStream()
+        {
+            _fixationDataStream = _host.Streams.CreateFixationDataStream();
+            _fixationDataStream
+                .Begin((x, y, _) =>
                 {
-                    case FixationDataEventType.Begin:
-                        fixationBeginTime = fixation.Data.Timestamp;
-                        Console.WriteLine("Begin fixation at X: {0}, Y: {1}", fixationPointX, fixationPointY);
-                        break;
+                    Console.WriteLine("\n" +
+                                      "Fixation started at X: {0}, Y: {1}", x, y);
+                    _fixationBeginTime = DateTime.Now;
+                })
+                .Data((x, y, _) =>
+                {
+                    //Console.WriteLine("During fixation, currently at: X: {0}, Y: {1}", x, y);
 
-                    case FixationDataEventType.Data:
-                        Console.WriteLine("During fixation, currently at X: {0}, Y: {1}", fixationPointX, fixationPointY);
-                        break;
 
-                    case FixationDataEventType.End:
-                        Console.WriteLine("End fixation at X: {0}, Y: {1}", fixationPointX, fixationPointY);
-                        Console.WriteLine("Fixation duration: {0}",
-                            fixationBeginTime > 0
-                                ? TimeSpan.FromMilliseconds(fixation.Data.Timestamp - fixationBeginTime)
-                                : TimeSpan.Zero);
-                        Console.WriteLine();
-                        break;
 
-                    default:
-                        throw new InvalidOperationException("Unknown fixation event type, which doesn't have explicit handling.");
-                }
-            };
 
-            Console.ReadKey();
+                })
+                .End((x, y, _) =>
+                {
+                    Console.WriteLine("Fixation ended at X: {0}, Y: {1}", x, y);
+                    if (_fixationBeginTime != default(DateTime))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine("Fixation duration: {0}", DateTime.Now - _fixationBeginTime);
+                        Console.ForegroundColor = Console.ForegroundColor;
+                    }
+                });
+        }
 
-            // we will close the coonection to the Tobii Engine before exit.
-            host.DisableConnection();
+        public static void StartClient()
+        {
+
+            // Connect the socket to the remote endpoint. Catch any errors.
+            try
+            {
+                // Connect to Remote EndPoint
+                sender.Connect(remoteEP);
+
+                Console.WriteLine("Socket connected to {0}",
+                    sender.RemoteEndPoint.ToString());
+
+                // Encode the data string into a byte array.
+                byte[] msg = Encoding.ASCII.GetBytes("This is a test<EOF>");
+
+                // Send the data through the socket.
+                int bytesSent = sender.Send(msg);
+
+                // Receive the response from the remote device.
+                int bytesRec = sender.Receive(bytes);
+                Console.WriteLine("Echoed test = {0}",
+                    Encoding.ASCII.GetString(bytes, 0, bytesRec));
+
+            }
+            catch (ArgumentNullException ane)
+            {
+                Console.WriteLine("ArgumentNullException : {0}", ane.ToString());
+            }
+            catch (SocketException se)
+            {
+                Console.WriteLine("SocketException : {0}", se.ToString());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unexpected exception : {0}", e.ToString());
+            }
 
         }
     }
