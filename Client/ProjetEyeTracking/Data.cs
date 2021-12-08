@@ -26,7 +26,7 @@ namespace ProjetEyeTracking
 
     public class Page
     {
-        public int pageNb { get; set; }
+        public string pageNb { get; set; }
         public string imgSelect { get; set; }
         public IList<Fixation> fixations { get; set; }
     }
