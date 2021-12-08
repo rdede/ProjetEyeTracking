@@ -109,8 +109,14 @@ namespace WebApp.Controllers
             }
             else
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Resultats");
             }
+        }
+
+        [HttpGet]
+        public IActionResult Resultats()
+        {
+            return View();
         }
     }
 }
