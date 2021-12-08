@@ -8,6 +8,8 @@ namespace WebApp.Controllers
 
     public class HomeController : Controller
     {
+        private readonly int etapes;
+
         // Use Dictionary as a map.
         private Dictionary<string, double> coordsImg1 = new Dictionary<string, double>();
         private Dictionary<string, double> coordsImg2 = new Dictionary<string, double>();
@@ -15,6 +17,8 @@ namespace WebApp.Controllers
 
         public HomeController()
         {
+            this.etapes = 3;
+
             this.coordsImg1.Add("X", 175.0);
             this.coordsImg1.Add("Y", 122.0);
             this.coordsImg1.Add("XMax", 460.0);
@@ -34,15 +38,11 @@ namespace WebApp.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-           
-            StartServer();
-
             return View();
         }
 
         private void StartServer()
         {
-
             var host = Dns.GetHostEntry("localhost");
             var ipAddress = host.AddressList[0];
             var localEndPoint = new IPEndPoint(ipAddress, 11000);
@@ -88,10 +88,29 @@ namespace WebApp.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult Test(int id)
+        {
+            StartServer();
+
+            ViewData["Id"] = id;
+            return View();
+        }
+
         [HttpPost]
         public IActionResult FormPostValue()
         {
-            return Content("Vous avez choisi l'information " + HttpContext.Request.Form["value"]);
+            var id = int.Parse(HttpContext.Request.Form["pageId"]) + 1;
+            var reponse = HttpContext.Request.Form["value"];
+            Console.WriteLine("test " + id + " : " + reponse);
+            if (id < this.etapes)
+            {
+                return RedirectToAction("Test", new { id });
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
         }
     }
 }

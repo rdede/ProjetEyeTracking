@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tsouffleux\\Documents\\Projet\\ProjetEyeTracking\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj": {}
+    "D:\\Master2\\Projet\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tsouffleux\\Documents\\Projet\\ProjetEyeTracking\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj": {
+    "D:\\Master2\\Projet\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tsouffleux\\Documents\\Projet\\ProjetEyeTracking\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj",
+        "projectUniqueName": "D:\\Master2\\Projet\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj",
         "projectName": "WebApp",
-        "projectPath": "C:\\Users\\tsouffleux\\Documents\\Projet\\ProjetEyeTracking\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj",
-        "packagesPath": "C:\\Users\\tsouffleux\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tsouffleux\\Documents\\Projet\\ProjetEyeTracking\\Serveur\\EyeTracking\\WebApp\\obj\\",
+        "projectPath": "D:\\Master2\\Projet\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj",
+        "packagesPath": "C:\\Users\\GorDa\\.nuget\\packages\\",
+        "outputPath": "D:\\Master2\\Projet\\Serveur\\EyeTracking\\WebApp\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\romai\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\GorDa\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -49,7 +49,15 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.101\\RuntimeIdentifierGraph.json"
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     }
