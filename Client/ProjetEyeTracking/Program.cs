@@ -2,26 +2,36 @@
 using System.Threading.Tasks;
 using Tobii.Interaction;
 using Tobii.Interaction.Framework;
-
 using System.Net.Sockets;
 using System.Text;
 using System.Net;
+using System.Collections.Generic;
+using System.Text.Json;
 
 namespace ProjetEyeTracking
 {
     public class Program
     {
-
+        // Fixation variables
         private static FixationDataStream _fixationDataStream;
         private static Host _host;
         private static DateTime _fixationBeginTime = default(DateTime);
+        private static List<Fixation> fixationList = new List<Fixation>();
+        private static StartedAt startFixation;
+        private static EndedAt endFixation;
+        private static TimeSpan fixationDuration;
+        private static List<Page> pagesList = new List<Page>();
+        private static int pageCpt = 0;
 
         // Socket variables 
         private static IPHostEntry host = Dns.GetHostEntry("localhost");
         private static IPAddress ipAddress = host.AddressList[0];
         private static IPEndPoint remoteEP = new IPEndPoint(ipAddress, 11000);
-
         private static byte[] bytes = new byte[1024];
+
+        private static int numericValue;
+        private static string currentUser;
+
 
         // Create a TCP/IP  socket.
         private static Socket sender = new Socket(ipAddress.AddressFamily,
@@ -33,24 +43,25 @@ namespace ProjetEyeTracking
 
             InitializeHost();
 
-            CreateAndVisualizeSensitiveFilteredFixationsStream();
+            CreateFixationsStream();
 
             int bytesRec = sender.Receive(bytes);
-            Console.WriteLine("{0}",
-                Encoding.ASCII.GetString(bytes, 0, bytesRec));
-
-            if (Encoding.ASCII.GetString(bytes, 0, bytesRec) == "suivant")
+            string res = Encoding.ASCII.GetString(bytes, 0, bytesRec);
+            
+            if(int.TryParse(res, out numericValue))
             {
-                ToggleFixationDataStream();
+                UserSuivant(res);
+            }
+            else
+            {
+                PageSuivante(res);
+                ToggleFixationStream();
             }
 
             Console.ReadKey(true);
 
-
-
-            //DisableConnectionWithTobiiEngine();
+            DisableConnectionWithTobiiEngine();
         }
-
 
         private static void InitializeHost()
         {
@@ -65,47 +76,43 @@ namespace ProjetEyeTracking
             _host.DisableConnection();
         }
 
-        private static void ToggleFixationDataStream()
+        private static void ToggleFixationStream()
         {
             // Toggling the FixationDataStream on or off
             if (_fixationDataStream != null)
                 _fixationDataStream.IsEnabled = !_fixationDataStream.IsEnabled;
         }
 
-        private static void CreateAndVisualizeSensitiveFilteredFixationsStream()
+        private static void CreateFixationsStream()
         {
             _fixationDataStream = _host.Streams.CreateFixationDataStream();
             _fixationDataStream
                 .Begin((x, y, _) =>
                 {
-                    Console.WriteLine("\n" +
-                                      "Fixation started at X: {0}, Y: {1}", x, y);
+                    startFixation = new StartedAt { x = x, y = y };
+                    //Console.WriteLine("\n" +
+                                      //"Fixation started at X: {0}, Y: {1}", x, y);
                     _fixationBeginTime = DateTime.Now;
                 })
                 .Data((x, y, _) =>
                 {
                     //Console.WriteLine("During fixation, currently at: X: {0}, Y: {1}", x, y);
-
-
-
-
                 })
                 .End((x, y, _) =>
                 {
-                    Console.WriteLine("Fixation ended at X: {0}, Y: {1}", x, y);
+                    //Console.WriteLine("Fixation ended at X: {0}, Y: {1}", x, y);
+                    endFixation = new EndedAt { x = x, y = y };
+                    fixationDuration = DateTime.Now - _fixationBeginTime;
+                    fixationList.Add(new Fixation { startedAt = startFixation, endedAt = endFixation, duration = fixationDuration });
                     if (_fixationBeginTime != default(DateTime))
                     {
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.WriteLine("Fixation duration: {0}", DateTime.Now - _fixationBeginTime);
-                        Console.ForegroundColor = Console.ForegroundColor;
+                        //Console.WriteLine("Fixation duration: {0}", DateTime.Now - _fixationBeginTime);
                     }
                 });
         }
 
         public static void StartClient()
         {
-
-            // Connect the socket to the remote endpoint. Catch any errors.
             try
             {
                 // Connect to Remote EndPoint
@@ -114,13 +121,11 @@ namespace ProjetEyeTracking
                 Console.WriteLine("Socket connected to {0}",
                     sender.RemoteEndPoint.ToString());
 
-                // Encode the data string into a byte array.
+                // Send encoded message through the socket
                 byte[] msg = Encoding.ASCII.GetBytes("This is a test<EOF>");
-
-                // Send the data through the socket.
                 int bytesSent = sender.Send(msg);
 
-                // Receive the response from the remote device.
+                // Receive the response from the server
                 int bytesRec = sender.Receive(bytes);
                 Console.WriteLine("Echoed test = {0}",
                     Encoding.ASCII.GetString(bytes, 0, bytesRec));
@@ -138,7 +143,33 @@ namespace ProjetEyeTracking
             {
                 Console.WriteLine("Unexpected exception : {0}", e.ToString());
             }
+        }
 
+        public static void PageSuivante(string res)
+        {
+            ToggleFixationStream();
+            pageCpt++;
+            pagesList.Add(new Page { pageNb = pageCpt, imgSelect = res, fixations = fixationList});
+        }
+
+        public static void UserSuivant(string userId)
+        {
+            currentUser = userId;
+            pageCpt = 0;
+            var data = new Data
+            {
+                idUser = currentUser,
+                pages = pagesList
+            };
+            WriteJson(data);
+        }
+
+        public static void WriteJson(Data data)
+        {
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string jsonString = JsonSerializer.Serialize(data, options);
+
+            Console.WriteLine(jsonString);
         }
     }
 }
