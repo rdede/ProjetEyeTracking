@@ -5,3 +5,11 @@ C:\Users\romai\source\repos\HttpServer\HttpServer\obj\Debug\HttpServer.csprojAss
 C:\Users\romai\source\repos\HttpServer\HttpServer\obj\Debug\HttpServer.csproj.CoreCompileInputs.cache
 C:\Users\romai\source\repos\HttpServer\HttpServer\obj\Debug\HttpServer.exe
 C:\Users\romai\source\repos\HttpServer\HttpServer\obj\Debug\HttpServer.pdb
+C:\Users\backl\Desktop\Cours\S3\Recherche\projet-git\ProjetEyeTracking\Serveur\HttpServer\HttpServer\bin\Debug\HttpServer.exe.config
+C:\Users\backl\Desktop\Cours\S3\Recherche\projet-git\ProjetEyeTracking\Serveur\HttpServer\HttpServer\bin\Debug\HttpServer.exe
+C:\Users\backl\Desktop\Cours\S3\Recherche\projet-git\ProjetEyeTracking\Serveur\HttpServer\HttpServer\bin\Debug\HttpServer.pdb
+C:\Users\backl\Desktop\Cours\S3\Recherche\projet-git\ProjetEyeTracking\Serveur\HttpServer\HttpServer\obj\Debug\HttpServer.csproj.AssemblyReference.cache
+C:\Users\backl\Desktop\Cours\S3\Recherche\projet-git\ProjetEyeTracking\Serveur\HttpServer\HttpServer\obj\Debug\HttpServer.csproj.SuggestedBindingRedirects.cache
+C:\Users\backl\Desktop\Cours\S3\Recherche\projet-git\ProjetEyeTracking\Serveur\HttpServer\HttpServer\obj\Debug\HttpServer.csproj.CoreCompileInputs.cache
+C:\Users\backl\Desktop\Cours\S3\Recherche\projet-git\ProjetEyeTracking\Serveur\HttpServer\HttpServer\obj\Debug\HttpServer.exe
+C:\Users\backl\Desktop\Cours\S3\Recherche\projet-git\ProjetEyeTracking\Serveur\HttpServer\HttpServer\obj\Debug\HttpServer.pdb

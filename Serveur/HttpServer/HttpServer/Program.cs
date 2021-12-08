@@ -12,8 +12,9 @@ namespace HttpServer
     {
         // Variables serveur web    
         public static HttpListener httpListener;
-        public static string url = "http://localhost:8080/";
+        public static string url = "http://localhost:8070/";
         public static int actual_user = 0;
+        public static int page_number = 1;
         public static string main_web_page = File.ReadAllText("index.html");
         public static string interface_1_web_page = File.ReadAllText("inter1.html");
         public static string interface_2_web_page = File.ReadAllText("inter2.html");
@@ -39,15 +40,17 @@ namespace HttpServer
                 HttpListenerRequest req = ctx.Request;
                 HttpListenerResponse resp = ctx.Response;
 
-                if ((req.HttpMethod == "POST") && (req.Url.AbsolutePath == "/inter1"))
+                if ((req.HttpMethod == "POST") && (req.Url.AbsolutePath == "/etape1"))
                 {
+                    page_number++;
                     string inter1 = new System.IO.StreamReader(req.InputStream, req.ContentEncoding).ReadToEnd();
                     user_answers.Add(inter1);
                     actual_page = interface_1_web_page;
                 }
 
-                if ((req.HttpMethod == "POST") && (req.Url.AbsolutePath == "/inter2"))
+                if ((req.HttpMethod == "POST") && (req.Url.AbsolutePath == "/etape2"))
                 {
+                    page_number++;
                     string inter2 = new System.IO.StreamReader(req.InputStream, req.ContentEncoding).ReadToEnd();
                     user_answers.Add(inter2);
                     actual_page = interface_2_web_page;
@@ -67,12 +70,18 @@ namespace HttpServer
                     Console.WriteLine("SUIVANT");
                     byte[] byData = System.Text.Encoding.ASCII.GetBytes("suivant");
                     handler.Send(byData);
-
-                    // Stockage en BDD et récupération des données de l'eye tracker
-
                 }
 
-                byte[] data = Encoding.UTF8.GetBytes(String.Format(actual_page, actual_user));
+                Console.WriteLine(page_number);
+
+                byte[] img1 = System.IO.File.ReadAllBytes(@"./assets/" + page_number + "/img1.jpg");
+                byte[] img2 = System.IO.File.ReadAllBytes(@"./assets/" + page_number + "/img2.jpg");
+                byte[] img3 = System.IO.File.ReadAllBytes(@"./assets/" + page_number + "/img3.jpg");
+
+                string base64Img1 = Convert.ToBase64String(img1);
+                string base64Img2 = Convert.ToBase64String(img2);
+                string base64Img3 = Convert.ToBase64String(img3);
+                byte[] data = Encoding.UTF8.GetBytes(String.Format(actual_page, base64Img1, base64Img2, base64Img3));
                 resp.ContentType = "text/html";
                 resp.ContentEncoding = Encoding.UTF8;
                 resp.ContentLength64 = data.LongLength;
@@ -90,7 +99,7 @@ namespace HttpServer
             httpListener.Start();
             Console.WriteLine("Serveur démarré sur : {0}", url);
 
-            StartServer();
+            // StartServer();
 
             Task listenTask = HandleIncomingConnections();
             listenTask.GetAwaiter().GetResult();
