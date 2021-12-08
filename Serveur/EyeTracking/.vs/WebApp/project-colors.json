@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "a24e03a8-ef4b-4a1f-998e-78607ad38b25": {
+      "ProjectGuid": "a24e03a8-ef4b-4a1f-998e-78607ad38b25",
+      "DisplayName": "WebApp",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}
