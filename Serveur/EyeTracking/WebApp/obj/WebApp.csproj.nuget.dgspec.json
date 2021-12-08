@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tsouffleux\\Documents\\M2\\Recherche\\EyeTracking\\WebApp\\WebApp.csproj": {}
+    "C:\\Users\\tsouffleux\\Documents\\Projet\\ProjetEyeTracking\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tsouffleux\\Documents\\M2\\Recherche\\EyeTracking\\WebApp\\WebApp.csproj": {
+    "C:\\Users\\tsouffleux\\Documents\\Projet\\ProjetEyeTracking\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tsouffleux\\Documents\\M2\\Recherche\\EyeTracking\\WebApp\\WebApp.csproj",
+        "projectUniqueName": "C:\\Users\\tsouffleux\\Documents\\Projet\\ProjetEyeTracking\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj",
         "projectName": "WebApp",
-        "projectPath": "C:\\Users\\tsouffleux\\Documents\\M2\\Recherche\\EyeTracking\\WebApp\\WebApp.csproj",
+        "projectPath": "C:\\Users\\tsouffleux\\Documents\\Projet\\ProjetEyeTracking\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj",
         "packagesPath": "C:\\Users\\tsouffleux\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tsouffleux\\Documents\\M2\\Recherche\\EyeTracking\\WebApp\\obj\\",
+        "outputPath": "C:\\Users\\tsouffleux\\Documents\\Projet\\ProjetEyeTracking\\Serveur\\EyeTracking\\WebApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
