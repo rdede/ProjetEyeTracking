@@ -8,19 +8,24 @@
     "net6.0": []
   },
   "packageFolders": {
-    "C:\\Users\\GorDa\\.nuget\\packages\\": {}
+    "C:\\Users\\backl\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Master2\\Projet\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj",
+      "projectUniqueName": "C:\\Users\\backl\\Desktop\\Cours\\S3\\Recherche\\code\\ProjetEyeTracking\\ProjetEyeTracking\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj",
       "projectName": "WebApp",
-      "projectPath": "D:\\Master2\\Projet\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj",
-      "packagesPath": "C:\\Users\\GorDa\\.nuget\\packages\\",
-      "outputPath": "D:\\Master2\\Projet\\Serveur\\EyeTracking\\WebApp\\obj\\",
+      "projectPath": "C:\\Users\\backl\\Desktop\\Cours\\S3\\Recherche\\code\\ProjetEyeTracking\\ProjetEyeTracking\\Serveur\\EyeTracking\\WebApp\\WebApp.csproj",
+      "packagesPath": "C:\\Users\\backl\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\backl\\Desktop\\Cours\\S3\\Recherche\\code\\ProjetEyeTracking\\ProjetEyeTracking\\Serveur\\EyeTracking\\WebApp\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\GorDa\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\backl\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
