@@ -23,6 +23,8 @@ namespace ProjetEyeTracking
         private static List<Page> pagesList = new List<Page>();
         private static int pageCpt = 0;
 
+        private static int nbPages = 3;
+
         // Socket variables 
         private static IPHostEntry host = Dns.GetHostEntry("localhost");
         private static IPAddress ipAddress = host.AddressList[0];
@@ -43,20 +45,31 @@ namespace ProjetEyeTracking
 
             InitializeHost();
 
-            CreateFixationsStream();
-
             int bytesRec = sender.Receive(bytes);
-            string res = Encoding.ASCII.GetString(bytes, 0, bytesRec);
-            
-            if(int.TryParse(res, out numericValue))
+            string response = Encoding.ASCII.GetString(bytes, 0, bytesRec);
+
+            string[] res = response.Split(':', ';');
+
+            switch (res[0])
             {
-                UserSuivant(res);
+                case "start":
+                    if(res[1] == "0")
+                    {
+                        CreateFixationsStream();
+                    }
+                    else
+                    {
+                        ToggleFixationStream();
+                    }
+                    break;
+                case "stop":
+                    UserSuivant(res);
+                    break;
+                case "etape":
+                    PageSuivante(res);
+                    break;
             }
-            else
-            {
-                PageSuivante(res);
-                ToggleFixationStream();
-            }
+            PageSuivante(res);
 
             Console.ReadKey(true);
 
@@ -145,23 +158,20 @@ namespace ProjetEyeTracking
             }
         }
 
-        public static void PageSuivante(string res)
+        public static void PageSuivante(string[] res)
         {
-            ToggleFixationStream();
-            pageCpt++;
-            pagesList.Add(new Page { pageNb = pageCpt, imgSelect = res, fixations = fixationList});
+            pagesList.Add(new Page { pageNb = res[1], imgSelect = res[5], fixations = fixationList});
         }
 
-        public static void UserSuivant(string userId)
+        public static void UserSuivant(string[] res)
         {
-            currentUser = userId;
-            pageCpt = 0;
             var data = new Data
             {
-                idUser = currentUser,
+                idUser = res[3],
                 pages = pagesList
             };
             WriteJson(data);
+            ToggleFixationStream();
         }
 
         public static void WriteJson(Data data)
