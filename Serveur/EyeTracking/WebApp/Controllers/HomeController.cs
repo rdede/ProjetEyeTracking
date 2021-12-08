@@ -8,7 +8,11 @@ namespace WebApp.Controllers
 
     public class HomeController : Controller
     {
-        private readonly int etapes;
+        
+        private static int ID_USER = 1;
+        private static Socket handler;
+        private static bool isStarted = false;
+        private static int etapes = 3;
 
         // Use Dictionary as a map.
         private Dictionary<string, double> coordsImg1 = new Dictionary<string, double>();
@@ -17,7 +21,6 @@ namespace WebApp.Controllers
 
         public HomeController()
         {
-            this.etapes = 3;
 
             this.coordsImg1.Add("X", 175.0);
             this.coordsImg1.Add("Y", 122.0);
@@ -38,15 +41,21 @@ namespace WebApp.Controllers
         [HttpGet]
         public IActionResult Index()
         {
+            if (!isStarted)
+            {
+                StartServer();
+            }
+            
+
             return View();
         }
 
         private void StartServer()
         {
+
             var host = Dns.GetHostEntry("localhost");
             var ipAddress = host.AddressList[0];
             var localEndPoint = new IPEndPoint(ipAddress, 11000);
-
             var listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             try
@@ -58,7 +67,7 @@ namespace WebApp.Controllers
                 listener.Listen(10);
 
                 Console.WriteLine("Waiting for a connection...");
-                var handler = listener.Accept();
+                handler = listener.Accept();
 
 
                 // Incoming data from the client.
@@ -80,6 +89,7 @@ namespace WebApp.Controllers
 
                 byte[] msg = Encoding.ASCII.GetBytes(data);
                 handler.Send(msg);
+                isStarted = true;
 
             }
             catch (Exception e)
@@ -91,8 +101,21 @@ namespace WebApp.Controllers
         [HttpGet]
         public IActionResult Test(int id)
         {
-            StartServer();
+            Console.WriteLine(handler);
+            Console.WriteLine(id);
+            switch (id)
+            {
+                case 0:
+                    byte[] msg = Encoding.ASCII.GetBytes("start:" + ID_USER);
+                    handler.Send(msg);
+                    break;
+                default:
+                    byte[] msgEtape = Encoding.ASCII.GetBytes("etape:" + id + ";user:" + ID_USER);
+                    Console.WriteLine(msgEtape);
+                    handler.Send(msgEtape);
+                    break;
 
+            }
             ViewData["Id"] = id;
             return View();
         }
@@ -100,15 +123,18 @@ namespace WebApp.Controllers
         [HttpPost]
         public IActionResult FormPostValue()
         {
+
             var id = int.Parse(HttpContext.Request.Form["pageId"]) + 1;
             var reponse = HttpContext.Request.Form["value"];
             Console.WriteLine("test " + id + " : " + reponse);
-            if (id < this.etapes)
+            if (id < etapes)
             {
                 return RedirectToAction("Test", new { id });
             }
             else
             {
+                ID_USER++;
+                Console.WriteLine(ID_USER);
                 return RedirectToAction("Resultats");
             }
         }
