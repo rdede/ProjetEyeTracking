@@ -7,11 +7,17 @@ using System.Text;
 using System.Net;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.IO;
 
 namespace ProjetEyeTracking
 {
     public class Program
     {
+        // Images Coordinates
+        private static Dictionary<string, double> coordsImg1 = new Dictionary<string, double>();
+        private static Dictionary<string, double> coordsImg2 = new Dictionary<string, double>();
+        private static Dictionary<string, double> coordsImg3 = new Dictionary<string, double>();
+
         // Fixation variables
         private static FixationDataStream _fixationDataStream;
         private static Host _host;
@@ -41,35 +47,56 @@ namespace ProjetEyeTracking
 
         public static void Main(string[] args)
         {
+
+            coordsImg1.Add("X", 175.0);
+            coordsImg1.Add("Y", 122.0);
+            coordsImg1.Add("XMax", 460.0);
+            coordsImg1.Add("YMax", 537.0);
+
+            coordsImg2.Add("X", 809.0);
+            coordsImg2.Add("Y", 122.0);
+            coordsImg2.Add("XMax", 1094.0);
+            coordsImg2.Add("YMax", 537.0);
+
+            coordsImg3.Add("X", 1443.0);
+            coordsImg3.Add("Y", 122.0);
+            coordsImg3.Add("XMax", 1728.0);
+            coordsImg3.Add("YMax", 537.0);
+
+
             StartClient();
 
             InitializeHost();
 
-            int bytesRec = sender.Receive(bytes);
-            string response = Encoding.ASCII.GetString(bytes, 0, bytesRec);
 
-            string[] res = response.Split(':', ';');
-
-            switch (res[0])
+            while (sender.Connected)
             {
-                case "start":
-                    if(res[1] == "0")
-                    {
-                        CreateFixationsStream();
-                    }
-                    else
-                    {
-                        ToggleFixationStream();
-                    }
-                    break;
-                case "stop":
-                    UserSuivant(res);
-                    break;
-                case "etape":
-                    PageSuivante(res);
-                    break;
+                int bytesRec = sender.Receive(bytes);
+                string response = Encoding.ASCII.GetString(bytes, 0, bytesRec);
+
+                string[] res = response.Split(':', ';');
+
+                switch (res[0])
+                {
+                    case "start":
+                        if (res[1] == "1")
+                        {
+                            CreateFixationsStream();
+                        }
+                        else
+                        {
+                            ToggleFixationStream();
+                        }
+                        break;
+                    case "stop":
+                        UserSuivant(res);
+                        break;
+                    case "etape":
+                        PageSuivante(res);
+                        break;
+                }
             }
-            PageSuivante(res);
+            
 
             Console.ReadKey(true);
 
@@ -103,24 +130,21 @@ namespace ProjetEyeTracking
                 .Begin((x, y, _) =>
                 {
                     startFixation = new StartedAt { x = x, y = y };
-                    //Console.WriteLine("\n" +
-                                      //"Fixation started at X: {0}, Y: {1}", x, y);
+                  
                     _fixationBeginTime = DateTime.Now;
-                })
-                .Data((x, y, _) =>
-                {
-                    //Console.WriteLine("During fixation, currently at: X: {0}, Y: {1}", x, y);
                 })
                 .End((x, y, _) =>
                 {
-                    //Console.WriteLine("Fixation ended at X: {0}, Y: {1}", x, y);
-                    endFixation = new EndedAt { x = x, y = y };
-                    fixationDuration = DateTime.Now - _fixationBeginTime;
-                    fixationList.Add(new Fixation { startedAt = startFixation, endedAt = endFixation, duration = fixationDuration });
-                    if (_fixationBeginTime != default(DateTime))
+                    string img = GetImageNumber(x, y);
+
+                    if (img != "else")
                     {
-                        //Console.WriteLine("Fixation duration: {0}", DateTime.Now - _fixationBeginTime);
+                        endFixation = new EndedAt { x = x, y = y };
+                        fixationDuration = DateTime.Now - _fixationBeginTime;
+                        fixationList.Add(new Fixation { imgLooked = img, startedAt = startFixation, endedAt = endFixation, duration = fixationDuration });
                     }
+
+                    
                 });
         }
 
@@ -134,14 +158,6 @@ namespace ProjetEyeTracking
                 Console.WriteLine("Socket connected to {0}",
                     sender.RemoteEndPoint.ToString());
 
-                // Send encoded message through the socket
-                byte[] msg = Encoding.ASCII.GetBytes("This is a test<EOF>");
-                int bytesSent = sender.Send(msg);
-
-                // Receive the response from the server
-                int bytesRec = sender.Receive(bytes);
-                Console.WriteLine("Echoed test = {0}",
-                    Encoding.ASCII.GetString(bytes, 0, bytesRec));
 
             }
             catch (ArgumentNullException ane)
@@ -161,25 +177,52 @@ namespace ProjetEyeTracking
         public static void PageSuivante(string[] res)
         {
             pagesList.Add(new Page { pageNb = res[1], imgSelect = res[5], fixations = fixationList});
+            
+            fixationList = new List<Fixation>();
         }
 
         public static void UserSuivant(string[] res)
         {
             var data = new Data
             {
-                idUser = res[3],
+                idUser = res[1],
                 pages = pagesList
             };
-            WriteJson(data);
+            pagesList = new List<Page>();
+            WriteJson(data, res[1]);
             ToggleFixationStream();
         }
 
-        public static void WriteJson(Data data)
+        public static void WriteJson(Data data, string idUser)
         {
             var options = new JsonSerializerOptions { WriteIndented = true };
             string jsonString = JsonSerializer.Serialize(data, options);
 
-            Console.WriteLine(jsonString);
+            File.WriteAllText(@"../../output/" + idUser + ".json", jsonString);
+        }
+
+        public static string GetImageNumber(double x, double y)
+        {
+
+            if (coordsImg1["X"] <= x && coordsImg1["Y"] <= y
+                && coordsImg1["XMax"] >= x && coordsImg1["YMax"] >= y)
+            {
+                return "A";
+            }
+            else if (coordsImg2["X"] <= x && coordsImg2["Y"] <= y
+                && coordsImg2["XMax"] >= x && coordsImg2["YMax"] >= y)
+            {
+                return "B";
+            }
+            else if (coordsImg3["X"] <= x && coordsImg3["Y"] <= y
+                && coordsImg3["XMax"] >= x && coordsImg3["YMax"] >= y)
+            {
+                return "C";
+            }
+            else
+            {
+                return "else";
+            }
         }
     }
 }

@@ -14,30 +14,6 @@ namespace WebApp.Controllers
         private static bool isStarted = false;
         private static int etapes = 3;
 
-        // Use Dictionary as a map.
-        private Dictionary<string, double> coordsImg1 = new Dictionary<string, double>();
-        private Dictionary<string, double> coordsImg2 = new Dictionary<string, double>();
-        private Dictionary<string, double> coordsImg3 = new Dictionary<string, double>();
-
-        public HomeController()
-        {
-
-            this.coordsImg1.Add("X", 175.0);
-            this.coordsImg1.Add("Y", 122.0);
-            this.coordsImg1.Add("XMax", 460.0);
-            this.coordsImg1.Add("YMax", 537.0);
-
-            this.coordsImg2.Add("X", 809.0);
-            this.coordsImg2.Add("Y", 122.0);
-            this.coordsImg2.Add("XMax", 1094.0);
-            this.coordsImg2.Add("YMax", 537.0);
-
-            this.coordsImg3.Add("X", 1443.0);
-            this.coordsImg3.Add("Y", 122.0);
-            this.coordsImg3.Add("XMax", 1728.0);
-            this.coordsImg3.Add("YMax", 537.0);
-        }
-
         [HttpGet]
         public IActionResult Index()
         {
@@ -45,8 +21,8 @@ namespace WebApp.Controllers
             {
                 StartServer();
             }
-            
 
+            ViewData["idUser"] = ID_USER;
             return View();
         }
 
@@ -66,29 +42,9 @@ namespace WebApp.Controllers
                 // We will listen 10 requests at a time
                 listener.Listen(10);
 
-                Console.WriteLine("Waiting for a connection...");
+                Console.WriteLine("En attente du lancement du client Tobii...");
                 handler = listener.Accept();
 
-
-                // Incoming data from the client.
-                string data = "";
-                byte[] bytes;
-
-                while (true)
-                {
-                    bytes = new byte[1024];
-                    int bytesRec = handler.Receive(bytes);
-                    data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
-                    if (data.IndexOf("<EOF>") > -1)
-                    {
-                        break;
-                    }
-                }
-
-                Console.WriteLine("Text received : {0}", data);
-
-                byte[] msg = Encoding.ASCII.GetBytes(data);
-                handler.Send(msg);
                 isStarted = true;
 
             }
@@ -101,20 +57,10 @@ namespace WebApp.Controllers
         [HttpGet]
         public IActionResult Test(int id)
         {
-            Console.WriteLine(handler);
-            Console.WriteLine(id);
-            switch (id)
+            if (id == 0)
             {
-                case 0:
-                    byte[] msg = Encoding.ASCII.GetBytes("start:" + ID_USER);
-                    handler.Send(msg);
-                    break;
-                default:
-                    byte[] msgEtape = Encoding.ASCII.GetBytes("etape:" + id + ";user:" + ID_USER);
-                    Console.WriteLine(msgEtape);
-                    handler.Send(msgEtape);
-                    break;
-
+                byte[] msg = Encoding.ASCII.GetBytes("start:" + ID_USER);
+                handler.Send(msg);
             }
             ViewData["Id"] = id;
             return View();
@@ -126,15 +72,24 @@ namespace WebApp.Controllers
 
             var id = int.Parse(HttpContext.Request.Form["pageId"]) + 1;
             var reponse = HttpContext.Request.Form["value"];
-            Console.WriteLine("test " + id + " : " + reponse);
             if (id < etapes)
             {
+                if (id > 0)
+                {
+                    byte[] msgEtape = Encoding.ASCII.GetBytes("etape:" + id + ";user:" + ID_USER + ";img:" + reponse);
+                    handler.Send(msgEtape);
+                }   
+                
                 return RedirectToAction("Test", new { id });
             }
             else
             {
+                byte[] msgEtapeFinal = Encoding.ASCII.GetBytes("etape:" + id + ";user:" + ID_USER + ";img:" + reponse);
+                handler.Send(msgEtapeFinal);
+                byte[] msgStop = Encoding.ASCII.GetBytes("stop:" + ID_USER);
+                handler.Send(msgStop);
+
                 ID_USER++;
-                Console.WriteLine(ID_USER);
                 return RedirectToAction("Resultats");
             }
         }

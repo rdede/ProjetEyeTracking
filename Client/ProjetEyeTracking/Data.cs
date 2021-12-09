@@ -19,6 +19,7 @@ namespace ProjetEyeTracking
 
     public class Fixation
     {
+        public string imgLooked { get; set; }
         public StartedAt startedAt { get; set; }
         public EndedAt endedAt { get; set; }
         public TimeSpan duration { get; set; }
